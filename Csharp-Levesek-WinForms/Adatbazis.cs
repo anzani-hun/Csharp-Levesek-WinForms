@@ -13,65 +13,51 @@ namespace Csharp_Levesek_WinForms
     class Adatbazis
     {
         //adatbázis kapcsolat és adatbázis SELECT futtatása
-        MySqlConnection connection = null;
-        MySqlCommand sql = null;
-
-        public Adatbazis()
+        MySqlConnectionStringBuilder connStr = new MySqlConnectionStringBuilder()
         {
-            string connectionString = "server=localhost;userid=root;password=;database=etelek";
-
-            connection = new MySqlConnection(connectionString);
-            connection.Open();
-
-            sql = connection.CreateCommand();
-            sql.CommandText = "SELECT * FROM levesek;";
-        }
+            Server = "localhost",
+            Port = 3306,
+            UserID = "root",
+            Password = "",
+            Database = "etelek"
+        };
+        MySqlConnection Connect { get => new MySqlConnection(connStr.ConnectionString); }
+        // vagy MySqlConnection Connect() { return new MySqlConnection(connStr.ConnectionString); }
+        MySqlCommand cmd = null;
 
         //lista létrehozása a levesek betöltésére
-        public List<Levesek> LevesLista()
+        public List<Leves> LevesLista()
         {
-            List<Levesek> levesek = new List<Levesek>();
-            MySqlDataReader reader = sql.ExecuteReader();
+            MySqlConnection conn = Connect;
+            List<Leves> Leves = new List<Leves>();
+            cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT * FROM Levesek;";
+
+            conn.Open();
+            MySqlDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
-                Levesek leves = new Levesek(reader.GetString("megnevezes"), reader.GetInt32("kaloria"), reader.GetDecimal("feherje"), reader.GetDecimal("zsir"), reader.GetDecimal("szenhidrat"), reader.GetDecimal("hamu"), reader.GetDecimal("rost"));
-                levesek.Add(leves);
+                Leves leves = new Leves(reader.GetString("megnevezes"), reader.GetInt32("kaloria"), reader.GetDecimal("feherje"), reader.GetDecimal("zsir"), reader.GetDecimal("szenhidrat"), reader.GetDecimal("hamu"), reader.GetDecimal("rost"));
+                Leves.Add(leves);
             }
+            conn.Close();
 
-            connection.Close();
-
-            return levesek;
+            return Leves;
         }
 
-
-        public int LevesLista(Levesek ujLevesHozzaad)
+        public int LevesHozzaad(Leves ujLevesHozzaad)
         {
             /// 
-            MySqlConnection connection = null;
-            MySqlCommand sql = null;
+            MySqlConnection connection = Connect;
+            MySqlCommand sql = connection.CreateCommand();
 
-
-            connection = new MySqlConnection("server=localhost;userid=root;password=;database=etelek");
             connection.Open();
-            
-            //INSERT INTO `levesek`(`megnevezes`, `kaloria`, `feherje`, `zsir`, `szenhidrat`, `hamu`, `rost`) VALUES ('[value-1]','[value-2]','[value-3]','[value-4]','[value-5]','[value-6]','[value-7]')
-            sql = new MySqlCommand("INSERT INTO `levesek`(`megnevezes`, `kaloria`, `feherje`, `zsir`, `szenhidrat`, `hamu`, `rost`) VALUES (@megnevezes, @kaloria, @feherje, @zsir, @szenhidrat, @hamu, @rost);", connection);
-            sql.Parameters.AddWithValue("@megnevezes", ujLevesHozzaad.Megnevezes);
-            sql.Parameters.AddWithValue("@kaloria", ujLevesHozzaad.Kaloria);
-            sql.Parameters.AddWithValue("@feherje", ujLevesHozzaad.Feherje);
-            sql.Parameters.AddWithValue("@zsir", ujLevesHozzaad.Zsir);
-            sql.Parameters.AddWithValue("@szenhidrat", ujLevesHozzaad.Szenhidrat);
-            sql.Parameters.AddWithValue("@hamu", ujLevesHozzaad.Hamu);
-            sql.Parameters.AddWithValue("@rost", ujLevesHozzaad.Rost);
-
+            sql.CommandText = $"INSERT INTO levesek (megnevezes, kaloria, feherje, zsir, szenhidrat, hamu, rost) VALUES ('{ujLevesHozzaad.Megnevezes}', {ujLevesHozzaad.Kaloria}, {ujLevesHozzaad.Feherje}, {ujLevesHozzaad.Zsir}, {ujLevesHozzaad.Szenhidrat}, {ujLevesHozzaad.Hamu}, {ujLevesHozzaad.Rost});";
             int ujsor = sql.ExecuteNonQuery();
-
             connection.Close();
 
             return ujsor;
         }
-
-    
     } 
 }

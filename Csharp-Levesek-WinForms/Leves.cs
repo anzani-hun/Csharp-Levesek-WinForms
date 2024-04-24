@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Csharp_Levesek_WinForms
 {
-    class Levesek
+    class Leves
     {
         //adatbázis szerkezete szerint felvenni a mezőket
         string megnevezes;
@@ -30,7 +30,7 @@ namespace Csharp_Levesek_WinForms
 
 
         //constructor generálása
-        public Levesek(string megnevezes, int kaloria, decimal feherje, decimal zsir, decimal szenhidrat, decimal hamu, decimal rost)
+        public Leves(string megnevezes = "", int kaloria = 0, decimal feherje = 0, decimal zsir = 0, decimal szenhidrat = 0, decimal hamu = 0, decimal rost = 0)
         {
             this.megnevezes = megnevezes;
             this.kaloria = kaloria;
@@ -39,6 +39,11 @@ namespace Csharp_Levesek_WinForms
             this.szenhidrat = szenhidrat;
             this.hamu = hamu;
             this.rost = rost;
+        }
+
+        public override string ToString()
+        {
+            return megnevezes;
         }
     }
 }
